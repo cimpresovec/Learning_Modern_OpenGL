@@ -1,1 +1,8 @@
+#Visual Studio
 *.vcx*
+*.tlog
+*.obj
+*.log
+*.idb
+*.pdb
+*.last*
