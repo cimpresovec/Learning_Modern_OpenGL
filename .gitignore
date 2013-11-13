@@ -6,3 +6,4 @@
 *.idb
 *.pdb
 *.last*
+*.*build
