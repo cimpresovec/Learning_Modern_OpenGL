@@ -2,9 +2,12 @@
 #ifdef _WIN32
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "glew32s.lib")
 #endif // _WIN32
 
 //Includes
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <thread>
 
@@ -21,6 +24,14 @@ int main(int argc, char* args[])
     GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", nullptr, nullptr); // Windowed
 
     glfwMakeContextCurrent(window);
+
+    //Glew checking
+    glewExperimental = true;
+    glewInit();
+
+    GLuint vertextbuffer;
+    glGenBuffers(1, &vertextbuffer);
+    printf("%u", vertextbuffer);
 
     //Loopideeloop
     while (!glfwWindowShouldClose(window))
