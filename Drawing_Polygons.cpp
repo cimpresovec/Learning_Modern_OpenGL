@@ -14,6 +14,37 @@
 #include <sstream>
 #include <iostream>
 
+GLuint compileShader(const std::string file_name, int shader_type, bool print_error = true)
+{
+    GLuint shader = glCreateShader(shader_type); //Create shader
+    std::ifstream shader_file(file_name); //Read file
+    std::stringstream file_stream;
+    if (shader_file)
+    {
+        file_stream << shader_file.rdbuf();
+    }
+    else
+    {
+        std::cout << "Reading '" + file_name + "' faled!\n";
+        return 0;
+    }
+    shader_file.close();
+    std::string content = file_stream.str();
+    const char* source = content.c_str();
+    glShaderSource(shader, 1, &source, NULL); //Copy shader to card
+    glCompileShader(shader); //Compile
+    int status = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (status == false)
+    {
+        char buffer[512];
+        glGetShaderInfoLog(shader, 512, NULL, buffer);
+        std::cout << "Compiling '" + file_name + "' failed:\n" << buffer << "\n";
+        return 0;
+    }
+    return shader;
+}
+
 int main(int argc, char* args[])
 {
     //Init stuff
@@ -44,44 +75,9 @@ int main(int argc, char* args[])
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     //Shader stuff
-    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    GLuint vertex_shader = compileShader("Shaders/polygons.vec", GL_VERTEX_SHADER);
+    GLuint fragment_shader = compileShader("Shaders/polygons.frag", GL_FRAGMENT_SHADER);
 
-    //load the stuff
-    {
-        std::ifstream shader_file("Shaders/polygons.vec");
-        std::stringstream file_content;
-        if (shader_file)
-        {
-            file_content << shader_file.rdbuf();
-        }
-        shader_file.close();
-        std::string cont = file_content.str();
-        const char* vertex_source = cont.c_str();
-        glShaderSource(vertex_shader, 1, &vertex_source, NULL);
-        glCompileShader(vertex_shader);
-    }
-    /*{
-        std::ifstream shader_file("Shaders/polygons.frag");
-        std::stringstream file_content;
-        if (shader_file)
-        {
-            file_content << shader_file.rdbuf();
-        }
-        shader_file.close();
-        const char* fragment_source = file_content.str().c_str();
-        glShaderSource(fragment_shader, 1, &fragment_source, NULL);
-        glCompileShader(fragment_shader);
-    }*/
-
-    int status;
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &status);
-    if (status == false)
-    {
-        char buffer[512];
-        glGetShaderInfoLog(vertex_shader, 512, NULL, buffer);
-        std::cout << buffer << "\n";
-    }
 
     while (!glfwWindowShouldClose(window))
     {

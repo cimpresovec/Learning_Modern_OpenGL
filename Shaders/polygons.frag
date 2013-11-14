@@ -1,6 +1,6 @@
 #version 150
 
-out vec3 colors;
+out vec4 colors;
 
 void main()
 {
