@@ -14,6 +14,7 @@
 #include <sstream>
 #include <iostream>
 
+//Messy unoptimized function to compile a shader and outputing errors
 GLuint compileShader(const std::string file_name, int shader_type, bool print_error = true)
 {
     GLuint shader = glCreateShader(shader_type); //Create shader
@@ -78,6 +79,22 @@ int main(int argc, char* args[])
     GLuint vertex_shader = compileShader("Shaders/polygons.vec", GL_VERTEX_SHADER);
     GLuint fragment_shader = compileShader("Shaders/polygons.frag", GL_FRAGMENT_SHADER);
 
+    //Shader program
+    GLuint shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+    glUseProgram(shader_program);
+
+    //Vertexarray buffer
+    GLuint vao;
+    glGenBuffers(1, &vao);
+    glBindVertexArray(vao);
+
+    //Vertex attributes
+    GLuint position_attribute = glGetAttribLocation(shader_program, "position");
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, false, 0, 0);
+    glEnableVertexAttribArray(position_attribute);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -86,6 +103,7 @@ int main(int argc, char* args[])
             glfwSetWindowShouldClose(window, true);
         }
 
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
