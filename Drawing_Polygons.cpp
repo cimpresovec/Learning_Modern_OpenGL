@@ -86,15 +86,19 @@ int main(int argc, char* args[])
     glLinkProgram(shader_program);
     glUseProgram(shader_program);
 
-    //Vertexarray buffer
+    //Vertex array buffer
     GLuint vao;
     glGenBuffers(1, &vao);
     glBindVertexArray(vao);
 
     //Vertex attributes
-    GLuint position_attribute = glGetAttribLocation(shader_program, "position");
+    GLint position_attribute = glGetAttribLocation(shader_program, "position");
     glVertexAttribPointer(position_attribute, 2, GL_FLOAT, false, 0, 0);
     glEnableVertexAttribArray(position_attribute);
+
+    //Uniform alpha multiply
+    GLint uni_red = glGetUniformLocation(shader_program, "red_changer");
+    float change = 1.f;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -102,10 +106,14 @@ int main(int argc, char* args[])
         {
             glfwSetWindowShouldClose(window, true);
         }
+        
+        //Fast fading stuff
+        glUniform1f(uni_red, (float)sin(change += .001f));
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glfwSwapBuffers(window);
         glfwPollEvents();
+
     }
 
     return 0;
