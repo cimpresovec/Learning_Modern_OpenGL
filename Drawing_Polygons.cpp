@@ -61,12 +61,12 @@ int main(int argc, char* args[])
     glewExperimental = true;
     glewInit();
 
-    //Polygon stuff
+    //Polygon stuff, X Y R G B
     float vertices[] =
     {
-        0.0f, 0.5f,
-        0.3f, -0.5f,
-        -0.3f, -0.5f    
+        0.0f, 0.5f, 0.5f, 1.0f, 0.f,
+        0.3f, -0.5f, 0.f, 0.f, 1.f,
+        -0.3f, -0.5f, 1.f, 1.f, 0.5f
     };
 
     GLuint vbo; //vertex buffer array
@@ -93,11 +93,15 @@ int main(int argc, char* args[])
 
     //Vertex attributes
     GLint position_attribute = glGetAttribLocation(shader_program, "position");
-    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, false, 0, 0);
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, false, 5*sizeof(float), 0);
     glEnableVertexAttribArray(position_attribute);
 
+    GLint color_attribute = glGetAttribLocation(shader_program, "in_colors");
+    glVertexAttribPointer(color_attribute, 3, GL_FLOAT, false, 5*sizeof(float), (void*)(2*sizeof(float)));
+    glEnableVertexAttribArray(color_attribute);
+
     //Uniform alpha multiply
-    GLint uni_red = glGetUniformLocation(shader_program, "red_changer");
+    GLint uni_red = glGetUniformLocation(shader_program, "uni_red");
     float change = 1.f;
 
     while (!glfwWindowShouldClose(window))

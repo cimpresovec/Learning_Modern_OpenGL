@@ -1,9 +1,12 @@
 #version 150
 
-out vec4 colors;
-uniform float red_changer;
+in vec3 draw_colors;
+
+out vec4 out_colors;
+
+uniform float uni_red;
 
 void main()
 {
-	colors = vec4(1.0*red_changer, 0.0, 0.0, 1.0);
+	out_colors = vec4(draw_colors.r * uni_red, draw_colors.g, draw_colors.b, 1.0);
 }
