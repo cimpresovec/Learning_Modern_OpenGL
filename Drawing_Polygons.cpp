@@ -66,7 +66,8 @@ int main(int argc, char* args[])
     {
         0.0f, 0.5f, 0.5f, 1.0f, 0.f,
         0.3f, -0.5f, 0.f, 0.f, 1.f,
-        -0.3f, -0.5f, 1.f, 1.f, 0.5f
+        -0.3f, -0.5f, 1.f, 1.f, 0.5f,
+        -.5f, .5f, 1.f, 0.f, 1.f
     };
 
     GLuint vbo; //vertex buffer array
@@ -74,6 +75,19 @@ int main(int argc, char* args[])
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //Element buffer
+    GLuint elements[] =
+    {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    GLuint ebo;
+    glGenBuffers(1, &ebo);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
     //Shader stuff
     GLuint vertex_shader = compileShader("Shaders/polygons.vec", GL_VERTEX_SHADER);
@@ -114,7 +128,10 @@ int main(int argc, char* args[])
         //Fast fading stuff
         glUniform1f(uni_red, (float)sin(change += .001f));
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        //or
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
 
