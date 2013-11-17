@@ -1,8 +1,9 @@
 //libs
 #ifdef _WIN32
-#pragma comment(lib, "glew32.lib")
+#pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "SOIL.lib")
 #endif
 
 //includes
@@ -10,6 +11,7 @@
 #define GLEW_STATIC
 #include <gl/glew.h>
 #include <GLFW/glfw3.h>
+#include <SOIL/SOIL.h>
 #include <thread>
 #include <fstream>
 #include <sstream>
@@ -89,6 +91,25 @@ int main(int argc, char* args[])
     glGenBuffers(1, &element_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+
+    //Texture
+    GLuint basic_texture;
+    glGenTextures(1, &basic_texture);
+    glBindTexture(GL_TEXTURE_2D, basic_texture);
+
+    //Wraping
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    //Filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    //Actually load the stuff
+    int width = 0, height = 0;
+    unsigned char* soil_image = SOIL_load_image("Data/img_test.png", &width, &height, 0, SOIL_LOAD_RGBA);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, soil_image);
+    SOIL_free_image_data(soil_image);
 
     //Main loop
     while (!glfwWindowShouldClose(window))
