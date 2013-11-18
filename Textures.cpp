@@ -111,6 +111,21 @@ int main(int argc, char* args[])
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, soil_image);
     SOIL_free_image_data(soil_image);
 
+    //Shaders
+    GLuint vertex_shader = compileShader("Shaders/textures.vec", GL_VERTEX_SHADER);
+
+    GLuint shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glLinkProgram(shader_program);
+    glUseProgram(shader_program);
+
+    //Vertex array buffer
+    GLuint vao;
+    glGenBuffers(1, &vao);
+    glBindVertexArray(vao);
+
+    //Attributes
+
     //Main loop
     while (!glfwWindowShouldClose(window))
     {
