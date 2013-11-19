@@ -69,10 +69,10 @@ int main(int argc, char* args[])
     //Vertices
     float vertices[] =
     {
-        -.5f, .5f, 1.f, 1.f, 1.f, 0.f, 0.f,
-        .5f, .5f, 1.f, 1.f, 1.f, 1.f, 0.f,
-        .5f, -.5f, 1.f, 1.f, 1.f, 1.f, 1.f,
-        -.5f, -.5f, 1.f, 1.f, 1.f, 0.f, 1.f
+        -.5f, .5f, 0.f, 1.f, 1.f, 0.f, 0.f,
+        .5f, .5f, 1.f, 0.f, 0.f, 1.f, 0.f,
+        .5f, -.5f, 1.f, 0.f, 1.f, 1.f, 1.f,
+        -.5f, -.5f, 0.f, 1.f, 1.f, 0.f, 1.f
     };
 
     GLuint vertex_buffer;
@@ -81,7 +81,7 @@ int main(int argc, char* args[])
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     //Elements
-    float elements[] =
+    GLuint elements[] =
     {
         0, 1, 2,
         2, 3, 0
@@ -113,9 +113,11 @@ int main(int argc, char* args[])
 
     //Shaders
     GLuint vertex_shader = compileShader("Shaders/textures.vec", GL_VERTEX_SHADER);
+    GLuint fragment_shader = compileShader("Shaders/textures.frag", GL_FRAGMENT_SHADER);
 
     GLuint shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
     glLinkProgram(shader_program);
     glUseProgram(shader_program);
 
@@ -125,6 +127,18 @@ int main(int argc, char* args[])
     glBindVertexArray(vao);
 
     //Attributes
+    GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
+    glEnableVertexAttribArray(position_attribute);
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, false, 7*sizeof(float), 0);
+
+    GLint color_attribute = glGetAttribLocation(shader_program, "in_color");
+    glEnableVertexAttribArray(color_attribute);
+    glVertexAttribPointer(color_attribute, 3, GL_FLOAT, false, 7*sizeof(float), (void*)(2*sizeof(float)));
+
+    GLint tex_attribute = glGetAttribLocation(shader_program, "in_tex_coord");
+    glEnableVertexAttribArray(tex_attribute);
+    glVertexAttribPointer(tex_attribute, 2, GL_FLOAT, false, 7*sizeof(float), (void*)(5*sizeof(float)));
+
 
     //Main loop
     while (!glfwWindowShouldClose(window))
@@ -133,6 +147,9 @@ int main(int argc, char* args[])
         {
             glfwSetWindowShouldClose(window, true);
         }
+
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
