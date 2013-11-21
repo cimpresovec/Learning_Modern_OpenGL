@@ -30,6 +30,7 @@ int main(int argc, char* args[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
     GLFWwindow* window = glfwCreateWindow(800, 600, "Transformations", nullptr, nullptr);
+    glfwMakeContextCurrent(window);
     glClearColor(1.f, 1.f, 1.f, 1.f);
 
     //glew stuff
@@ -69,8 +70,8 @@ int main(int argc, char* args[])
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
     //Compile shaders
-    GLuint vertex_shader = compileShader("Shaders/transformations.vec");
-    GLuint fragment_shader = compileShader("Shaders/transformations.frag");
+    GLuint vertex_shader = compileShader("Shaders/transformations.vec", GL_VERTEX_SHADER);
+    GLuint fragment_shader = compileShader("Shaders/transformations.frag", GL_FRAGMENT_SHADER);
 
     //Create program
     GLuint shader_program = glCreateProgram();
@@ -80,7 +81,37 @@ int main(int argc, char* args[])
     glUseProgram(shader_program);
 
     //Shader attributes
+    GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
+    glEnableVertexAttribArray(position_attribute);
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, 0, 7*sizeof(float), 0);
+    
+    GLint color_attribute = glGetAttribLocation(shader_program, "in_color");
+    glEnableVertexAttribArray(color_attribute);
+    glVertexAttribPointer(color_attribute, 3, GL_FLOAT, 0, 7*sizeof(float), (void*)(2*sizeof(float)));
 
+    GLint tex_attribute = glGetAttribLocation(shader_program, "in_tex_coord");
+    glEnableVertexAttribArray(tex_attribute);
+    glVertexAttribPointer(tex_attribute, 2, GL_FLOAT, 0, 7*sizeof(float), (void*)(5*sizeof(float)));
+
+    //Load texture
+    GLuint basic_texture;
+    glGenTextures(1, &basic_texture);
+    glBindTexture(GL_TEXTURE_2D, basic_texture);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    int width = 0, height = 0;
+    unsigned char* soil_image = SOIL_load_image("Data/img_test.png", &width, &height, 0, SOIL_LOAD_RGBA);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, soil_image);
+    SOIL_free_image_data(soil_image);
+
+    //Blending - alpha
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -90,6 +121,8 @@ int main(int argc, char* args[])
         }
 
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
