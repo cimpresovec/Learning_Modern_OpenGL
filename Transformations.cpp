@@ -36,6 +36,52 @@ int main(int argc, char* args[])
     glewExperimental = true;
     glewInit();
 
+    //vertices x, y, r, g, b, tex_x, tex_y
+    float vertices[] =
+    {
+        -.5f, .5f,  1.f, 1.f, 1.f,  0.f, 0.f,
+        .5f, .5f,   1.f, 1.f, 1.f,  1.f, 0.f,
+        .5f, -.5f,  1.f, 1.f, 1.f,  1.f, 1.f,
+        -.5f, -.5f, 1.f, 1.f, 1.f,  0.f, 1.f
+    };
+
+    //Vertex buffer array
+    GLuint vertex_buffer;
+    glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //Vertex array object
+    GLuint vertex_array;
+    glGenVertexArrays(1, &vertex_array);
+    glBindVertexArray(vertex_array);
+
+    //Element buffer object
+    GLuint element_buffer;
+    glGenBuffers(1, &element_buffer);
+    
+    int elements[] =
+    {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+
+    //Compile shaders
+    GLuint vertex_shader = compileShader("Shaders/transformations.vec");
+    GLuint fragment_shader = compileShader("Shaders/transformations.frag");
+
+    //Create program
+    GLuint shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+    glUseProgram(shader_program);
+
+    //Shader attributes
+
+
     while(!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
