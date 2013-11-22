@@ -113,12 +113,28 @@ int main(int argc, char* args[])
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    float move = 0.0f;
+
     while(!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
             glfwSetWindowShouldClose(window, true);
         }
+
+        move += .0001f; 
+
+        //Some manual moving
+        float new_vertices[] =
+        {
+            -.5f + sin(move), .5f,  1.f, 1.f, 1.f,  0.f, 0.f,
+            .5f, .5f,   1.f, 1.f, 1.f,  1.f, 0.f,
+            .5f + sin(move), -.5f,  1.f, 1.f, 1.f,  1.f, 1.f,
+            -.5f, -.5f, 1.f, 1.f, 1.f,  0.f, 1.f
+        };
+
+
+        glBufferData(GL_ARRAY_BUFFER, sizeof(new_vertices), new_vertices, GL_DYNAMIC_DRAW);
 
         glClear(GL_COLOR_BUFFER_BIT);
 
