@@ -119,11 +119,11 @@ int main(int argc, char* args[])
     //Transformations
     GLint uni_model = glGetUniformLocation(shader_program, "model");
     float rotate = 0.f;
-
+    float player_x = 0.f, player_y = -1.f;
+        
     //View and projection transformations
-    glm::mat4 view_matrix = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
     GLint view_uniform = glGetUniformLocation(shader_program, "view");
-    glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view_matrix));
+    
     
     glm::mat4 proj_matrix = glm::perspective(100.f, 800.f/600.f, 0.f, 10.f);
     GLint proj_uniform = glGetUniformLocation(shader_program, "proj");
@@ -137,12 +137,23 @@ int main(int argc, char* args[])
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotate += .1f;
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotate -= .1f;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) player_y += .001f;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) player_y -= .001f;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) player_x += .001f;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) player_x -= .001f;
 
         //Transformations
+        //Rotations
         glm::mat4 transformation;
+        transformation = glm::translate(transformation, glm::vec3(player_x, player_y, 0.f));
         transformation = glm::translate(transformation, glm::vec3(.5f, 0.f, 0.f));
         transformation = glm::rotate(transformation, rotate, glm::vec3(0.f, 0.f, 1.f));
         transformation = glm::translate(transformation, glm::vec3(-.5f, 0.f, 0.f));
+
+        //Camera
+        glm::mat4 view_matrix = glm::lookAt(glm::vec3(0.f, -1.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
+        
+        glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view_matrix));
         //Apply transformation
         
         glUniformMatrix4fv(uni_model, 1, GL_FALSE, glm::value_ptr(transformation));
