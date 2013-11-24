@@ -16,6 +16,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #endif
 
 //Messy unoptimized function to compile a shader and outputing errors
@@ -113,7 +116,7 @@ int main(int argc, char* args[])
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    float move = 0.0f;
+    GLint uni_trans = glGetUniformLocation(shader_program, "in_trans");
 
     while(!glfwWindowShouldClose(window))
     {
@@ -122,19 +125,16 @@ int main(int argc, char* args[])
             glfwSetWindowShouldClose(window, true);
         }
 
-        move += .0001f; 
+        float delta = (float)clock() / (float)CLOCKS_PER_SEC * 180.f;
+        //Transformations
+        glm::mat4 transformation;
+        transformation = glm::translate(transformation, glm::vec3(.5f, 0.f, 0.f));
+        transformation = glm::rotate(transformation, delta, glm::vec3(0.f, 0.f, 1.f));
+        transformation = glm::translate(transformation, glm::vec3(-.5f, 0.f, 0.f));
+        //Apply transformation
+        
+        glUniformMatrix4fv(uni_trans, 1, GL_FALSE, glm::value_ptr(transformation));
 
-        //Some manual moving
-        float new_vertices[] =
-        {
-            -.5f + sin(move), .5f,  1.f, 1.f, 1.f,  0.f, 0.f,
-            .5f, .5f,   1.f, 1.f, 1.f,  1.f, 0.f,
-            .5f + sin(move), -.5f,  1.f, 1.f, 1.f,  1.f, 1.f,
-            -.5f, -.5f, 1.f, 1.f, 1.f,  0.f, 1.f
-        };
-
-
-        glBufferData(GL_ARRAY_BUFFER, sizeof(new_vertices), new_vertices, GL_DYNAMIC_DRAW);
 
         glClear(GL_COLOR_BUFFER_BIT);
 
