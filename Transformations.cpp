@@ -117,6 +117,7 @@ int main(int argc, char* args[])
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     GLint uni_trans = glGetUniformLocation(shader_program, "in_trans");
+    float rotate = 0.f;
 
     while(!glfwWindowShouldClose(window))
     {
@@ -124,12 +125,13 @@ int main(int argc, char* args[])
         {
             glfwSetWindowShouldClose(window, true);
         }
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotate += .1f;
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotate -= .1f;
 
-        float delta = (float)clock() / (float)CLOCKS_PER_SEC * 180.f;
         //Transformations
         glm::mat4 transformation;
         transformation = glm::translate(transformation, glm::vec3(.5f, 0.f, 0.f));
-        transformation = glm::rotate(transformation, delta, glm::vec3(0.f, 0.f, 1.f));
+        transformation = glm::rotate(transformation, rotate, glm::vec3(0.f, 0.f, 1.f));
         transformation = glm::translate(transformation, glm::vec3(-.5f, 0.f, 0.f));
         //Apply transformation
         
@@ -142,6 +144,7 @@ int main(int argc, char* args[])
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Some wait so we don't eat the CPU
     }
 
     return 0;
