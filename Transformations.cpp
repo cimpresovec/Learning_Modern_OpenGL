@@ -116,9 +116,19 @@ int main(int argc, char* args[])
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    GLint uni_trans = glGetUniformLocation(shader_program, "in_trans");
+    //Transformations
+    GLint uni_model = glGetUniformLocation(shader_program, "model");
     float rotate = 0.f;
 
+    //View and projection transformations
+    glm::mat4 view_matrix = glm::lookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
+    GLint view_uniform = glGetUniformLocation(shader_program, "view");
+    glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view_matrix));
+    
+    glm::mat4 proj_matrix = glm::perspective(100.f, 800.f/600.f, 0.f, 10.f);
+    GLint proj_uniform = glGetUniformLocation(shader_program, "proj");
+    glUniformMatrix4fv(proj_uniform, 1, GL_FALSE, glm::value_ptr(proj_matrix));
+    
     while(!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -135,8 +145,7 @@ int main(int argc, char* args[])
         transformation = glm::translate(transformation, glm::vec3(-.5f, 0.f, 0.f));
         //Apply transformation
         
-        glUniformMatrix4fv(uni_trans, 1, GL_FALSE, glm::value_ptr(transformation));
-
+        glUniformMatrix4fv(uni_model, 1, GL_FALSE, glm::value_ptr(transformation));
 
         glClear(GL_COLOR_BUFFER_BIT);
 
