@@ -146,10 +146,11 @@ int main(int argc, char* args[])
         //Rotations
         glm::mat4 transformation;
         transformation = glm::translate(transformation, glm::vec3(player_x, player_y, 0.f));
-        transformation = glm::translate(transformation, glm::vec3(.5f, 0.f, 0.f));
+        transformation = glm::rotate(transformation, rotate, glm::vec3(1.f, 0.f, 0.f));
+        //transformation = glm::translate(transformation, glm::vec3(.5f, 0.f, 0.f));
         transformation = glm::rotate(transformation, rotate, glm::vec3(0.f, 0.f, 1.f));
-        transformation = glm::translate(transformation, glm::vec3(-.5f, 0.f, 0.f));
-
+        //transformation = glm::translate(transformation, glm::vec3(-.5f, 0.f, 0.f));
+        
         //Camera
         glm::mat4 view_matrix = glm::lookAt(glm::vec3(0.f, -1.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
         
