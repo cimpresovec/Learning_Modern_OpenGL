@@ -36,11 +36,16 @@ int main(int argc, char* args[])
     glfwWindowHint(GLFW_RESIZABLE, false);
     GLFWwindow* main_window = glfwCreateWindow(800, 600, "Moving around", nullptr, nullptr);
     glfwMakeContextCurrent(main_window);
-    glClearColor(1.f, 1.f, 1.f, 1.f);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
 
     //glew initialization
     glewExperimental = true;
     glewInit();
+
+    //Vertex array object
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
     //Main game loop
     while (!glfwWindowShouldClose(main_window))
@@ -49,7 +54,7 @@ int main(int argc, char* args[])
         glfwPollEvents();
         if (glfwGetKey(main_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
-            glfwSetWindowShouldClose(main_window);
+            glfwSetWindowShouldClose(main_window, true);
         }
 
         //LOGIC
@@ -58,6 +63,7 @@ int main(int argc, char* args[])
         glClear(GL_COLOR_BUFFER_BIT);
 
         glfwSwapBuffers(main_window);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Delay
     }
 
     return 0;
