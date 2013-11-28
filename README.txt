@@ -8,3 +8,6 @@ Files going with the tutorial:
 	-Drawing_Polygons.cpp
 	-Textures.cpp
 	-Transformations.cpp
+
+Personal examples:
+	-Moving_Around.cpp
