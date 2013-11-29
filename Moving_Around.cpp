@@ -26,6 +26,11 @@
 //Compiling shader TODO make better
 GLuint compileShader(const std::string file_name, int shader_type, bool print_error = true);
 
+struct Player
+{
+    Player();
+};
+
 int main(int argc, char* args[])
 {
     //glfw initialization
