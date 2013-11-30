@@ -29,6 +29,10 @@ GLuint compileShader(const std::string file_name, int shader_type, bool print_er
 struct Player
 {
     Player();
+
+    void handleInput(GLFWwindow* main_window);
+    void doLogic();
+    void render();
 };
 
 int main(int argc, char* args[])
@@ -72,4 +76,17 @@ int main(int argc, char* args[])
     }
 
     return 0;
+}
+
+Player::Player()
+{
+
+}
+
+void Player::handleInput(GLFWwindow* main_window)
+{
+    if (glfwGetKey(main_window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        std::cout << "Up\n";
+    }
 }
