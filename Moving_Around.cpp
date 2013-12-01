@@ -30,6 +30,9 @@ struct Player
 {
     Player();
 
+    bool up_button, down_button, left_button, right_button;
+    float x, y, w, h;
+
     void handleInput(GLFWwindow* main_window);
     void doLogic();
     void render();
@@ -56,6 +59,9 @@ int main(int argc, char* args[])
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
+    //Game objects
+    Player* player_one = new Player();
+
     //Main game loop
     while (!glfwWindowShouldClose(main_window))
     {
@@ -65,8 +71,10 @@ int main(int argc, char* args[])
         {
             glfwSetWindowShouldClose(main_window, true);
         }
+        player_one->handleInput(main_window);
 
         //LOGIC
+        player_one->doLogic();
 
         //RENDERING
         glClear(GL_COLOR_BUFFER_BIT);
@@ -80,13 +88,38 @@ int main(int argc, char* args[])
 
 Player::Player()
 {
-
+    left_button = right_button = up_button = down_button = false;
+    x = y = 0.f;
+    w = h = .2f;
 }
 
 void Player::handleInput(GLFWwindow* main_window)
 {
-    if (glfwGetKey(main_window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(main_window, GLFW_KEY_W) == GLFW_PRESS) up_button = true;
+    else up_button = false;
+    if (glfwGetKey(main_window, GLFW_KEY_S) == GLFW_PRESS) down_button = true;
+    else down_button = false;
+    if (glfwGetKey(main_window, GLFW_KEY_A) == GLFW_PRESS) left_button = true;
+    else left_button = false;
+    if (glfwGetKey(main_window, GLFW_KEY_D) == GLFW_PRESS) right_button = true;
+    else right_button = false;
+}
+
+void Player::doLogic()
+{
+
+}
+
+void Player::render()
+{
+    float vertices[] = 
     {
-        std::cout << "Up\n";
-    }
+        x-w/2, y-h/2,
+        x+w/2, y-h/2,
+        x+w/2, y+h/2,
+        x-w/2, y+h/2
+    };
+
+    //Buffer the vertices
+    GLuint vbo = 0;
 }
