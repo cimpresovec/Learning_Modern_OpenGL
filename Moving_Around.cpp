@@ -32,7 +32,6 @@ struct Player
 
     bool up_button, down_button, left_button, right_button;
     float x, y, w, h;
-    const float k_x, k_y;
 
     GLuint vbo;
 
@@ -46,12 +45,12 @@ int main(int argc, char* args[])
     //glfw initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
     GLFWwindow* main_window = glfwCreateWindow(800, 600, "Moving around", nullptr, nullptr);
     glfwMakeContextCurrent(main_window);
-    glClearColor(0.f, 0.f, 0.f, 1.f);
+    glClearColor(.5f, .5f, .5f, 1.f);
 
     //glew initialization
     glewExperimental = true;
@@ -61,6 +60,26 @@ int main(int argc, char* args[])
     GLuint vao = 0;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
+
+    //Load shaders
+    GLuint vertex_shader = compileShader("Shaders/moving_around.ver", GL_VERTEX_SHADER);
+    GLuint fragment_shader = compileShader("Shaders/moving_around.frag", GL_FRAGMENT_SHADER);
+
+    //Shader program
+    GLint shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glCompileShader(shader_program);
+    glUseProgram(shader_program);
+
+    //Shader attributes
+    GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
+    glEnableVertexAttribArray(position_attribute);
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, false, 0, (void*)(6*sizeof(float)));
+
+    GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
+    glEnableVertexAttribArray(color_attribute);
+    glVertexAttribPointer(color_attribute, 4, GL_FLOAT, false, 2*sizeof(float), (void*)(6*sizeof(float)));
 
     //Game objects
     Player* player_one = new Player();
@@ -82,6 +101,8 @@ int main(int argc, char* args[])
         //RENDERING
         glClear(GL_COLOR_BUFFER_BIT);
 
+        player_one->render();
+
         glfwSwapBuffers(main_window);
         std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Delay
     }
@@ -89,24 +110,23 @@ int main(int argc, char* args[])
     return 0;
 }
 
-Player::Player() : k_x(0.f), k_y(0.f)
+Player::Player()
 {
     left_button = right_button = up_button = down_button = false;
-    x = y = k_x;
+    x = y = 0.f;
     w = h = .2f;
 
     //vbo
+    /*
     float vertices[] = 
     {
-        x-w/2, y-h/2,
-        x+w/2, y-h/2,
-        x+w/2, y+h/2,
-        x-w/2, y+h/2
+        x-w/2, y-h/2, 1.f, 1.f, 1.f, 1.f,
+        x+w/2, y-h/2, 0.f, 0.f, 1.f, 1.f,
+        x+w/2, y+h/2, 1.f, 0.f, 0.f, 1.f,
+        x-w/2, y+h/2, 0.f, 1.f, 0.f, 1.f
     };
-
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    */
+    
 }
 
 void Player::handleInput(GLFWwindow* main_window)
@@ -124,9 +144,58 @@ void Player::handleInput(GLFWwindow* main_window)
 void Player::doLogic()
 {
 
-}
+}  
 
 void Player::render()
 {
+    //vbo
+    
+    //update vbo
+    //glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), NULL);
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+    float vertices[] =
+    {
+        -.5f, .5f,  1.f, 1.f, 1.f, 
+        .5f, .5f,   1.f, 1.f, 1.f,
+        .5f, -.5f,  1.f, 1.f, 1.f,
+        -.5f, -.5f, 1.f, 1.f, 1.f,
+    };
 
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    //Render
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+}
+
+GLuint compileShader(const std::string file_name, int shader_type, bool print_error)
+{
+    GLuint shader = glCreateShader(shader_type); //Create shader
+    std::ifstream shader_file(file_name); //Read file
+    std::stringstream file_stream;
+    if (shader_file)
+    {
+        file_stream << shader_file.rdbuf();
+    }
+    else
+    {
+        std::cout << "Reading '" + file_name + "' faled!\n";
+        return 0;
+    }
+    shader_file.close();
+    std::string content = file_stream.str();
+    const char* source = content.c_str();
+    glShaderSource(shader, 1, &source, NULL); //Copy shader to card
+    glCompileShader(shader); //Compile
+    int status = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (status == false)
+    {
+        char buffer[512];
+        glGetShaderInfoLog(shader, 512, NULL, buffer);
+        std::cout << "Compiling '" + file_name + "' failed:\n" << buffer << "\n";
+        return 0;
+    }
+    return shader;
 }
