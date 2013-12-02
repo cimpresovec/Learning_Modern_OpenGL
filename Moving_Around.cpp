@@ -56,11 +56,6 @@ int main(int argc, char* args[])
     glewExperimental = true;
     glewInit();
 
-    //Vertex array object
-    GLuint vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
     //Load shaders
     GLuint vertex_shader = compileShader("Shaders/moving_around.ver", GL_VERTEX_SHADER);
     GLuint fragment_shader = compileShader("Shaders/moving_around.frag", GL_FRAGMENT_SHADER);
@@ -69,20 +64,39 @@ int main(int argc, char* args[])
     GLint shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
-    glCompileShader(shader_program);
+    glLinkProgram(shader_program);
     glUseProgram(shader_program);
+
+    //Vertex array object
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
     //Shader attributes
     GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
     glEnableVertexAttribArray(position_attribute);
-    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, false, 0, (void*)(6*sizeof(float)));
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
 
     GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
     glEnableVertexAttribArray(color_attribute);
-    glVertexAttribPointer(color_attribute, 4, GL_FLOAT, false, 2*sizeof(float), (void*)(6*sizeof(float)));
+    glVertexAttribPointer(color_attribute, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
 
     //Game objects
-    Player* player_one = new Player();
+    //Player* player_one = new Player();
+
+    float vertices[] =
+    {
+        -.5f, .5f,  1.f, 1.f, 1.f, 1.f,
+        .5f, .5f,   1.f, 1.f, 1.f, 1.f,
+        .5f, -.5f,  1.f, 1.f, 1.f, 1.f,
+        -.5f, -.5f, 1.f, 1.f, 1.f, 1.f
+    };
+
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //Main game loop
     while (!glfwWindowShouldClose(main_window))
@@ -93,18 +107,23 @@ int main(int argc, char* args[])
         {
             glfwSetWindowShouldClose(main_window, true);
         }
-        player_one->handleInput(main_window);
+        //player_one->handleInput(main_window);
 
         //LOGIC
-        player_one->doLogic();
+        //player_one->doLogic();
 
         //RENDERING
         glClear(GL_COLOR_BUFFER_BIT);
 
-        player_one->render();
+        
+        //Render
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+        //player_one->render();
 
         glfwSwapBuffers(main_window);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Delay
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); //Delay
     }
 
     return 0;
@@ -156,10 +175,10 @@ void Player::render()
     //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
     float vertices[] =
     {
-        -.5f, .5f,  1.f, 1.f, 1.f, 
-        .5f, .5f,   1.f, 1.f, 1.f,
-        .5f, -.5f,  1.f, 1.f, 1.f,
-        -.5f, -.5f, 1.f, 1.f, 1.f,
+        -.5f, .5f,  1.f, 1.f, 1.f, 1.f,
+        .5f, .5f,   1.f, 1.f, 1.f, 1.f,
+        .5f, -.5f,  1.f, 1.f, 1.f, 1.f,
+        -.5f, -.5f, 1.f, 1.f, 1.f, 1.f
     };
 
     glGenBuffers(1, &vbo);
