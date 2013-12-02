@@ -32,6 +32,9 @@ struct Player
 
     bool up_button, down_button, left_button, right_button;
     float x, y, w, h;
+    const float k_x, k_y;
+
+    GLuint vbo;
 
     void handleInput(GLFWwindow* main_window);
     void doLogic();
@@ -43,8 +46,8 @@ int main(int argc, char* args[])
     //glfw initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
     GLFWwindow* main_window = glfwCreateWindow(800, 600, "Moving around", nullptr, nullptr);
     glfwMakeContextCurrent(main_window);
@@ -86,11 +89,24 @@ int main(int argc, char* args[])
     return 0;
 }
 
-Player::Player()
+Player::Player() : k_x(0.f), k_y(0.f)
 {
     left_button = right_button = up_button = down_button = false;
-    x = y = 0.f;
+    x = y = k_x;
     w = h = .2f;
+
+    //vbo
+    float vertices[] = 
+    {
+        x-w/2, y-h/2,
+        x+w/2, y-h/2,
+        x+w/2, y+h/2,
+        x-w/2, y+h/2
+    };
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 }
 
 void Player::handleInput(GLFWwindow* main_window)
@@ -112,14 +128,5 @@ void Player::doLogic()
 
 void Player::render()
 {
-    float vertices[] = 
-    {
-        x-w/2, y-h/2,
-        x+w/2, y-h/2,
-        x+w/2, y+h/2,
-        x-w/2, y+h/2
-    };
 
-    //Buffer the vertices
-    GLuint vbo = 0;
 }
