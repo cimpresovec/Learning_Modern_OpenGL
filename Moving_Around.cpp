@@ -73,30 +73,12 @@ int main(int argc, char* args[])
     glBindVertexArray(vao);
 
     //Shader attributes
-    GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
-    glEnableVertexAttribArray(position_attribute);
-    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
-
-    GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
-    glEnableVertexAttribArray(color_attribute);
-    glVertexAttribPointer(color_attribute, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
+    
 
     //Game objects
     //Player* player_one = new Player();
 
-    float vertices[] =
-    {
-        -.5f, .5f,  1.f, 1.f, 1.f, 1.f,
-        .5f, .5f,   1.f, 1.f, 1.f, 1.f,
-        .5f, -.5f,  1.f, 1.f, 1.f, 1.f,
-        -.5f, -.5f, 1.f, 1.f, 1.f, 1.f
-    };
-
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
 
     //Main game loop
     while (!glfwWindowShouldClose(main_window))
@@ -117,7 +99,27 @@ int main(int argc, char* args[])
 
         
         //Render
-        glBindVertexArray(vao);
+        float vertices[] =
+        {
+            -.5f, .5f,  1.f, 1.f, 1.f, 1.f,
+                .5f, .5f,   1.f, 1.f, 1.f, 1.f,
+                .5f, -.5f,  1.f, 1.f, 1.f, 1.f,
+                -.5f, -.5f, 1.f, 1.f, 1.f, 1.f
+        };
+
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
+        glEnableVertexAttribArray(position_attribute);
+        glVertexAttribPointer(position_attribute, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
+
+        GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
+        glEnableVertexAttribArray(color_attribute);
+        glVertexAttribPointer(color_attribute, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
+
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         //player_one->render();
