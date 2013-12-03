@@ -33,11 +33,13 @@ struct Player
     bool up_button, down_button, left_button, right_button;
     float x, y, w, h;
 
-    GLuint vbo;
-
     void handleInput(GLFWwindow* main_window);
     void doLogic();
     void render();
+
+private:
+    GLuint vbo;
+    GLuint vao;
 };
 
 int main(int argc, char* args[])
@@ -45,12 +47,12 @@ int main(int argc, char* args[])
     //glfw initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
     GLFWwindow* main_window = glfwCreateWindow(800, 600, "Moving around", nullptr, nullptr);
     glfwMakeContextCurrent(main_window);
-    glClearColor(.5f, .5f, .5f, 1.f);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
 
     //glew initialization
     glewExperimental = true;
@@ -67,18 +69,12 @@ int main(int argc, char* args[])
     glLinkProgram(shader_program);
     glUseProgram(shader_program);
 
-    //Vertex array object
-    GLuint vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    //Shader attributes
-    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Game objects
-    //Player* player_one = new Player();
-
-    
+    Player* player_one = new Player();
+    Player* player_two = new Player();
 
     //Main game loop
     while (!glfwWindowShouldClose(main_window))
@@ -89,43 +85,21 @@ int main(int argc, char* args[])
         {
             glfwSetWindowShouldClose(main_window, true);
         }
-        //player_one->handleInput(main_window);
+        player_one->handleInput(main_window);
 
         //LOGIC
-        //player_one->doLogic();
+        player_one->doLogic();
 
         //RENDERING
         glClear(GL_COLOR_BUFFER_BIT);
 
         
         //Render
-        float vertices[] =
-        {
-            -.5f, .5f,  1.f, 1.f, 1.f, 1.f,
-                .5f, .5f,   1.f, 1.f, 1.f, 1.f,
-                .5f, -.5f,  1.f, 1.f, 1.f, 1.f,
-                -.5f, -.5f, 1.f, 1.f, 1.f, 1.f
-        };
-
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
-        glEnableVertexAttribArray(position_attribute);
-        glVertexAttribPointer(position_attribute, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
-
-        GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
-        glEnableVertexAttribArray(color_attribute);
-        glVertexAttribPointer(color_attribute, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
-
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-        //player_one->render();
+        player_one->render();
+        player_two->render();
 
         glfwSwapBuffers(main_window);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); //Delay
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Delay
     }
 
     return 0;
@@ -138,7 +112,6 @@ Player::Player()
     w = h = .2f;
 
     //vbo
-    /*
     float vertices[] = 
     {
         x-w/2, y-h/2, 1.f, 1.f, 1.f, 1.f,
@@ -146,8 +119,24 @@ Player::Player()
         x+w/2, y+h/2, 1.f, 0.f, 0.f, 1.f,
         x-w/2, y+h/2, 0.f, 1.f, 0.f, 1.f
     };
-    */
     
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+    
+    //vao
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    //Attributes
+    //GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
+
+    //GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
+    glBindVertexArray(0);
 }
 
 void Player::handleInput(GLFWwindow* main_window)
@@ -164,30 +153,37 @@ void Player::handleInput(GLFWwindow* main_window)
 
 void Player::doLogic()
 {
-
+    if (right_button)
+    {
+        x += 0.001f;
+    }
+    if (left_button)
+    {
+        x -= 0.001f;
+    }
 }  
 
 void Player::render()
 {
     //vbo
-    
     //update vbo
-    //glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), NULL);
-    //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-    float vertices[] =
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, 0, 0, NULL);
+    
+    float vertices[] = 
     {
-        -.5f, .5f,  1.f, 1.f, 1.f, 1.f,
-        .5f, .5f,   1.f, 1.f, 1.f, 1.f,
-        .5f, -.5f,  1.f, 1.f, 1.f, 1.f,
-        -.5f, -.5f, 1.f, 1.f, 1.f, 1.f
+        x-w/2, y-h/2, 1.f, 1.f, 1.f, .5f,
+        x+w/2, y-h/2, 0.f, 0.f, 1.f, .5f,
+        x+w/2, y+h/2, 1.f, 0.f, 0.f, .5f,
+        x-w/2, y+h/2, 0.f, 1.f, 0.f, .5f
     };
 
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
     //Render
+    glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glBindVertexArray(0);
 }
 
 GLuint compileShader(const std::string file_name, int shader_type, bool print_error)
