@@ -28,7 +28,7 @@ GLuint compileShader(const std::string file_name, int shader_type, bool print_er
 
 struct Player
 {
-    Player();
+    Player(const int shader);
 
     bool up_button, down_button, left_button, right_button;
     float x, y, w, h;
@@ -47,8 +47,8 @@ int main(int argc, char* args[])
     //glfw initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
     GLFWwindow* main_window = glfwCreateWindow(800, 600, "Moving around", nullptr, nullptr);
     glfwMakeContextCurrent(main_window);
@@ -73,8 +73,8 @@ int main(int argc, char* args[])
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Game objects
-    Player* player_one = new Player();
-    Player* player_two = new Player();
+    Player* player_one = new Player(shader_program);
+    Player* player_two = new Player(shader_program);
 
     //Main game loop
     while (!glfwWindowShouldClose(main_window))
@@ -105,7 +105,7 @@ int main(int argc, char* args[])
     return 0;
 }
 
-Player::Player()
+Player::Player(const int shader)
 {
     left_button = right_button = up_button = down_button = false;
     x = y = 0.f;
@@ -129,13 +129,13 @@ Player::Player()
     glBindVertexArray(vao);
 
     //Attributes
-    //GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
+    GLint position_attribute = glGetAttribLocation(shader, "in_position");
+    glEnableVertexAttribArray(position_attribute);
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
 
-    //GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
+    GLint color_attribute = glGetAttribLocation(shader,"in_color");
+    glEnableVertexAttribArray(color_attribute);
+    glVertexAttribPointer(color_attribute, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
     glBindVertexArray(0);
 }
 
@@ -153,14 +153,26 @@ void Player::handleInput(GLFWwindow* main_window)
 
 void Player::doLogic()
 {
+    glm::vec2 speed(0.f, 0.f);
     if (right_button)
     {
-        x += 0.001f;
+        speed.x += 0.001f;
     }
     if (left_button)
     {
-        x -= 0.001f;
+        speed.x -= 0.001f;
     }
+    if (up_button)
+    {
+        speed.y += 0.001f;
+    }
+    if (down_button)
+    {
+        speed.y -= 0.001f;
+    }
+
+    x += speed.x;
+    y += speed.y;
 }  
 
 void Player::render()
