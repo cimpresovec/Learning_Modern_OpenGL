@@ -76,9 +76,13 @@ int main(int argc, char* args[])
     Player* player_one = new Player(shader_program);
     Player* player_two = new Player(shader_program);
 
+    int count = 0;
+
     //Main game loop
     while (!glfwWindowShouldClose(main_window))
     {
+        //timer
+        std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
         //EVENTS
         glfwPollEvents();
         if (glfwGetKey(main_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -99,7 +103,18 @@ int main(int argc, char* args[])
         player_two->render();
 
         glfwSwapBuffers(main_window);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Delay
+
+        //timer fps
+        std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+        std::chrono::microseconds frame_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+        if (frame_time.count() < 16000)
+        {
+            //std::cout << "Delayu " << frame_time.count() << std::endl;
+            std::this_thread::sleep_for(std::chrono::microseconds(16000 - frame_time.count())); //Delay
+        }
+        count = (count+1) % 60;
+        std::cout << count << "\n";
+        
     }
 
     return 0;
