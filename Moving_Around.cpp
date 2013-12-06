@@ -22,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 //Compiling shader TODO make better
 GLuint compileShader(const std::string file_name, int shader_type, bool print_error = true);
@@ -46,6 +47,9 @@ struct BufferHandler
 private:
     GLuint vbo;
     GLuint vao;
+
+    float* buffer; //bigObuffer
+    std::vector<GLuint>* texture_ids;
 };
 
 int main(int argc, char* args[])
@@ -186,6 +190,31 @@ int main(int argc, char* args[])
 
     return 0;
 }
+
+BufferHandler::BufferHandler(const int shader_program)
+{
+    buffer = new float[24*5000];
+
+    //vbo
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, GL_STREAM_DRAW);
+
+    //vao
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    //attributes
+    GLint position_attribute = glGetAttribLocation(shader_program, "in_position");
+    glEnableVertexAttribArray(position_attribute);
+    glVertexAttribPointer(position_attribute, 2, GL_FLOAT, 0, 6*sizeof(float), 0);
+
+    GLint color_attribute = glGetAttribLocation(shader_program,"in_color");
+    glEnableVertexAttribArray(color_attribute);
+    glVertexAttribPointer(color_attribute, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
+    glBindVertexArray(0);
+}
+
 
 Player::Player(const int shader)
 {
