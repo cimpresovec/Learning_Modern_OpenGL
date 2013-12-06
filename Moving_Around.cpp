@@ -36,6 +36,12 @@ struct Player
     void handleInput(GLFWwindow* main_window);
     void doLogic();
     void render(float* bigo);
+};
+
+//Something that will handle all the buffers for all rendable objects, with their texture id, so they are handled in one bulk VBO
+struct BufferHandler
+{
+    BufferHandler(const int shader_program);
 
 private:
     GLuint vbo;
@@ -47,8 +53,8 @@ int main(int argc, char* args[])
     //glfw initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
     GLFWwindow* main_window = glfwCreateWindow(800, 600, "Moving around", nullptr, nullptr);
     glfwMakeContextCurrent(main_window);
@@ -167,6 +173,7 @@ int main(int argc, char* args[])
         glfwSwapBuffers(main_window);
 
         //timer fps
+        //TODO FIX TIMING ISSUE
         std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
         std::chrono::milliseconds frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
         if (frame_time.count() < 16)
@@ -195,6 +202,7 @@ Player::Player(const int shader)
         x-w/2, y+h/2, 0.f, 1.f, 0.f, 1.f
     };
     
+    /*
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
@@ -212,6 +220,7 @@ Player::Player(const int shader)
     glEnableVertexAttribArray(color_attribute);
     glVertexAttribPointer(color_attribute, 4, GL_FLOAT, 0, 6*sizeof(float), (void*)(2*sizeof(float)));
     glBindVertexArray(0);
+    */
 }
 
 void Player::handleInput(GLFWwindow* main_window)
