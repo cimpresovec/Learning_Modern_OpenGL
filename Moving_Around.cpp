@@ -23,6 +23,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 
 //Compiling shader TODO make better
 GLuint compileShader(const std::string file_name, int shader_type, bool print_error = true);
@@ -44,12 +45,14 @@ struct BufferHandler
 {
     BufferHandler(const int shader_program);
 
+
 private:
     GLuint vbo;
     GLuint vao;
 
     float* buffer; //bigObuffer
     std::vector<GLuint>* texture_ids;
+    std::vector<std::map<void*, int>> pairs; 
 };
 
 int main(int argc, char* args[])
