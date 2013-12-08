@@ -41,6 +41,12 @@ struct Player
 };
 
 //Something that will handle all the buffers for all rendable objects, with their texture id, so they are handled in one bulk VBO
+struct BufferObject
+{
+    GLuint texture_id;
+    unsigned int number;
+};
+
 struct BufferHandler
 {
     BufferHandler(const int shader_program);
@@ -52,7 +58,6 @@ private:
 
     float* buffer; //bigObuffer
     std::vector<GLuint>* texture_ids;
-    std::vector<std::map<void*, int>> pairs; 
 };
 
 int main(int argc, char* args[])
