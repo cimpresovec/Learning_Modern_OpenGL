@@ -44,7 +44,6 @@ struct Player
 struct BufferObject
 {
     GLuint texture_id;
-    unsigned int number;
 };
 
 struct BufferHandler
