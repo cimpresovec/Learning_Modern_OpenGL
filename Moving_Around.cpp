@@ -57,6 +57,7 @@ private:
 
     float* buffer; //bigObuffer
     std::vector<GLuint>* texture_ids;
+
 };
 
 int main(int argc, char* args[])
